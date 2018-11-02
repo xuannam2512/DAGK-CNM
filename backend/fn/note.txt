@@ -1,0 +1,2 @@
+Bao gồm các file là những thao tác insert, 
+select, delete, update trên các table của database (Giao tiếp trực tiếp với database)
