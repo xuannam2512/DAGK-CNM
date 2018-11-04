@@ -1,3 +1,7 @@
+/**
+ * test authentication api
+ */
+
 var express = require('express');
 
 var router = express.Router();
@@ -10,12 +14,19 @@ router.get('/', (req, res) => {
     });
 });
 
-router.post('/refreshtoken', (req, res) => {
-    console.log(req.body);
-
-    let refreshToken = authen.generateRefreshToken(req.body);
-
-    res.json(refreshToken);
+router.get('/refreshtoken', (req, res) => {
+    let refreshToken = authen.generateRefreshToken();
+    authen.updateRefreshToken(1, refreshToken)
+        .then((data) => {
+            console.log(data);
+            res.statusCode = 201;
+            res.json(refreshToken);
+        })
+        .catch((err) => {
+            console.log(err);
+            res.statusCode = 500;
+            res.end();
+        })
 });
 
 router.post('/accesstoken', (req, res) => {
