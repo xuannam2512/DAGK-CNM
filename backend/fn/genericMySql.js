@@ -13,7 +13,13 @@ var createConnection = () => {
 exports.excuteQuery = sql => {
     return new Promise((resolve, reject) => {
         var cn = createConnection();
-        cn.connect();
+        cn.connect((err) => {
+            if(err) {
+                console.log(err);
+            } else {
+                console.log("connected");
+            }
+        });
         cn.query(sql, (err, data) => {
             if (err) {
                 reject(err);
