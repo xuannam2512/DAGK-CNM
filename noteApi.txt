@@ -1,16 +1,52 @@
 method: POST
- name: /api/users 
+name: /api/users 
     params: 
     body: 
-                {
-                    "username": "admin1",
-                    "password": "admin",
-                    "name": "Le Xuan Nam",
-                    "email": "xuannam25121@gmail.com",
-                    "dob": "1997-12-25",
-                    "permission": 0
-                }
+    {
+        "username": "admin1",
+        "password": "admin",
+        "name": "Le Xuan Nam",
+        "email": "xuannam25121@gmail.com",
+        "dob": "1997-12-25",
+        "permission": 0
+    }
+name : http://localhost:3000/api/authen/accesstoken
+params: 
+body: 
+    {
+        "refeshToken":"OQLyZ8N1nBmvHMpZ1xkuCNGgluR9RYXIsmxHKi6w5ioHdDGr1DS1XNgTQGm3D8SnWXyz4VCtz7wvux9p"
+    }
+name : http://localhost:3000/api/users
+params: 
+body: 
+    {
+       "userId" : 2
+    }
+name : http://localhost:3000/api/users
+params: 
+body: 
+    {
+        "username": "admin2",
+        "password": "admin2",
+        "name": "Le Xuan Nams",
+        "email": "xuannam2512s1@gmail.com",
+        "dob": "1997-12-25",
+        "permission": 0
+    }
+name : http://localhost:3000/api/users/login
+params: 
+body: 
+    {
+    "username" : "admin1",
+	"password" : "admin"
+    }
 Method: GET
+name : http://localhost:3000/api/users
+params: 
+body: 
+    {
+        "refeshToken":"OQLyZ8N1nBmvHMpZ1xkuCNGgluR9RYXIsmxHKi6w5ioHdDGr1DS1XNgTQGm3D8SnWXyz4VCtz7wvux9p"
+    }
 Method: DELETE
 Method: PUT
                     

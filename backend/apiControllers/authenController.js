@@ -30,10 +30,25 @@ router.get('/refreshtoken', (req, res) => {
 });
 
 router.post('/accesstoken', (req, res) => {
-    console.log(req.body);
+        authen.refreshAccessToken(req.body.refeshToken)
+        .then((data)=>{
+                //  đăng nhập thành công
+                res.status = 201;
+                res.json({
+                    "accesToken": data
+                });
 
-    let accessToken = authen.generateRefreshToken(req.body);
-    res.json(accessToken);
+            
+        })
+        .catch((err)=>{
+            console.log(err);
+            res.statusCode = 500;
+            res.end();
+        })
+
 });
+
+
+
 
 module.exports = router;
