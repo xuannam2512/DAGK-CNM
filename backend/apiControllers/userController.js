@@ -77,7 +77,7 @@ router.post('/login', (req, res) => {
 
 router.post('/logout', (req, res) => {
     //write some code here
-    userRepo.logout(req.body)
+    userRepo.logout(req.body.userId)
         .then(data => {
             res.status = 201;
             res.end();
