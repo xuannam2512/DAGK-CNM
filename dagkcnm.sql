@@ -21,3 +21,15 @@ create table user_refresh_token (
 );
 
 insert into users (username, password, name, email, dob, permission) values ('admin', '123456', 'Nam', 'xuannam2512@gmail.com', '1997-12-25', 0);
+
+-- tạo mới ngày 10/11/2018 : 3:34 pm
+create table requests(
+id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+nameString nvarchar(255),
+phone varchar(11),
+addressString nvarchar(255),
+noteString nvarchar(255),
+activeDate datetime,
+iat int 
+
+)
