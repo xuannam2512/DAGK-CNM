@@ -18,4 +18,22 @@ router.post('/accesstoken', (req, res) => {
 
 });
 
+router.get('/:authToken', (req, res) => {
+    console.log(req.params.authToken);
+    authen.checkRefreshToken(req.params.authToken)
+    .then((data) => {
+        if(data.length > 0) {
+            res.statusCode = 200;
+            res.json({
+                "msg": "Valid",
+                "data": data
+            });
+        }
+    })
+    .catch((err) => {
+        res.statusCode = 500;
+        res.end();
+    })
+})
+
 module.exports = router;
