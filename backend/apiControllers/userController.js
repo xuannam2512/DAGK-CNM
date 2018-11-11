@@ -4,6 +4,7 @@ var router = express.Router();
 
 var userRepo = require('../repos/userRepo');
 var authenRepo = require('../repos/authenRepo');
+var verifyAccessToken = require('../repos/authenRepo').verifyAccessToken;
 //test
 router.get('/', (req, res) => {
     // console.log(req.body);
@@ -22,51 +23,49 @@ router.get('/', (req, res) => {
 
 //register a account.
 router.post('/', (req, res) => {
-    // console.log(req.body);
     userRepo.create(req.body)
         .then(data => {
-            //console.log(data);
             res.statusCode = 201;
             res.json(data);
         })
         .catch((err) => {
-            var value = err.toString();
-            var error = ''
-            if (value.indexOf("email") > 0) {
-                error = value.substr(value.indexOf("email"), 5);
-            } else if (value.indexOf("username") > 0) {
-                error = value.substr(value.indexOf("username"), 8);
+            //username is exist
+            let value = err.toString();
+            if (value.indexOf("username") > 0) {
+                res.statusCode = 203;
+                res.json({
+                    "message": "Username Invalid"
+                });
+            } else {
+                console.log(err);
+                res.statusCode = 500;
+                res.end();
             }
-
-            res.statusCode = 500;
-            res.json({
-                "error": error,
-                "message": value
-            });
         });
 });
 
+//login account
 router.post('/login', (req, res) => {
-    //write some code here
-    // req.body :  lấy tất cả các biến truyền vào ở body
 
     userRepo.login(req.body)
         .then(data => {
             var countRow = data.length;
+            console.log(countRow);
             if (countRow > 0) {
                 //  đăng nhập thành công
                 var accessToken = authenRepo.generateAccessToken(data);
                 var refeshToken = authenRepo.generateRefreshToken();
                 authenRepo.updateRefreshToken(data[0].userId, refeshToken)
-                res.status = 201;
+                res.statusCode = 201;
                 res.json({
                     "user": data[0],
-                    "accesToken": accessToken,
-                    "refeshToken": refeshToken
+                    "accessToken": accessToken,
+                    "refreshToken": refeshToken
                 });
-
+            } else {
+                res.statusCode = 204;
+                res.end();
             }
-
         })
         .catch((err) => {
             console.log(err);
@@ -75,11 +74,13 @@ router.post('/login', (req, res) => {
         })
 });
 
-router.post('/logout', (req, res) => {
+router.post('/logout',verifyAccessToken, (req, res) => {
     //write some code here
-    userRepo.logout(req.body)
+    console.log(req.body.userId);
+    userRepo.logout(req.body.userId)
         .then(data => {
-            res.status = 201;
+            console.log("Logout success");
+            res.status = 200;
             res.end();
         }).catch((err) => {
             console.log(err);

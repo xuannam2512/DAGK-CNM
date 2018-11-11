@@ -7,7 +7,7 @@ CREATE TABLE `users` (
   `username` varchar(50) UNIQUE COLLATE utf8_unicode_ci NOT NULL,
   `password` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
-  `email` varchar(50) UNIQUE COLLATE utf8_unicode_ci NOT NULL,
+  `email` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `dob` date NOT NULL,
   `permission` int(11) NOT NULL,
   PRIMARY KEY (`userId`)

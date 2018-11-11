@@ -76,3 +76,33 @@ exports.refreshAccessToken = (refreshToken) => {
             })
     })
 }
+
+exports.verifyAccessToken = (req, res, next) => {
+    var token = req.headers['x-access-token'];
+    console.log(token);
+
+    if (token) {
+        jwt.verify(token, SECRET_KEY, (err, payload) => {
+            if (err) {
+                res.statusCode = 401;
+                res.json({
+                    msg: 'INVALID TOKEN',
+                    error: err
+                })
+            } else {
+                req.token_payload = payload;
+                next();
+            }
+        });
+    } else {
+        res.statusCode = 403;
+        res.json({
+            msg: 'NO_TOKEN'
+        })
+    }
+}
+
+exports.checkRefreshToken = (refreshToken) => {
+    let sql = `select * from user_refresh_token where refresToken = '${refreshToken}'`;
+    return db.excuteQuery(sql);
+}
