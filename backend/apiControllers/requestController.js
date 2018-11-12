@@ -38,14 +38,17 @@ router.post('/', (req, res) => {
     }
 
     requestRepo.insert(c)
+    .then(data=>
+        {
+            res.statusCode = 201;
+            res.json({
+                msg: 'inserted'
+            });
+        })
         .catch(err => {
             console.log(`err : ${err}`);
         });
   
-    res.statusCode = 201;
-    res.json({
-        msg: 'added'
-    });
     // sse
     events.publishCategoryAdded(c);
 })
@@ -53,20 +56,24 @@ router.post('/', (req, res) => {
 router.put('/', (req, res) => {
     var c = {
         id: req.body.id,
-        nameString : req.body.nameString,
+        addressString : req.body.addressString,
+        x : req.body.x,
+        y : req.body.y
     }
 
-    requestRepo.insert(c)
+    requestRepo.update(c)
+    .then(data=>
+    {
+        res.statusCode = 201;
+        res.json({
+            msg: 'updated'
+        });
+    })
         .catch(err => {
+            res.statusCode = 204;
             console.log(`err : ${err}`);
         });
   
-    res.statusCode = 201;
-    res.json({
-        msg: 'added'
-    });
-    // sse
-    events.publishCategoryAdded(c);
 })
 
 

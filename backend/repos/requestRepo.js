@@ -14,3 +14,12 @@ exports.insert = (request)=>{
     
     return db.excuteQuery(sql);
 }
+
+exports.update = (request)=>{
+    //console.log(request.activeDate);
+    
+    var sql = `update  requests set x = ${request.x} , y=${request.y} , addressString =N'${request.addressString}' where id = ${request.id}`;
+    //console.log(sql);
+    
+    return db.excuteQuery(sql);
+}
