@@ -15,28 +15,6 @@
         </h1>        
       </div>
     </div>
-    <div id='form-info'>
-      <h3>
-        Thông Tin Đặt Xe
-      </h3>
-      <div class='row1'>
-        <div id='name'>
-          <input type='text' placeholder='Họ và tên'>
-        </div>
-        <div id='phone'>
-          <input type='text' placeholder='Số điện thoại'>
-        </div>
-      </div>
-      <div class='row2'>
-        <input type='text' placeholder='Địa chỉ đón khách'>
-      </div>
-      <div class='row3'>
-        <input type='text' placeholder='Ghi chú'>
-      </div>
-      <div class='row4'>
-        <button type='button'>Send Request</button>
-      </div>
-    </div>
     <div id='table-book'>
       <h3>
         Danh Sách Đặt Xe
@@ -49,7 +27,11 @@
             <th scope='col'>Họ và tên</th>
             <th scope='col'>Số điện thoại</th>
             <th scope='col'>Địa chỉ</th>
+            <th scope='col'>X</th>
+            <th scope='col'>Y</th>
             <th scope='col'>Ghi chú</th>
+            <th scope='col'>Trang thai</th>
+            <th scope='col'></th>
           </tr>
         </thead>
         <tbody>
@@ -58,32 +40,68 @@
             <td>Nguyen Van A</td>
             <td>1234567891</td>
             <td>Bình Lợi, Bình Thạnh, TP Hồ Chí Minh</td>
+            <td></td>
+            <td></td>
             <td>Dưới cầu Bình Lợi</td>
+            <td>Chua dinh vi</td>
+            <td>
+              <button type="button" class="btn btn-primary btn-block mb-1" @click="locate">Dinh Vi</button>              
+              <button type="button" class="btn btn-success btn-block" @click="findCar">Tim xe</button>
+            </td>
           </tr>
           <tr>
             <th scope='row'>2</th>
             <td>Nguyen Van A</td>
             <td>1234567891</td>
             <td>Bình Lợi, Bình Thạnh, TP Hồ Chí Minh</td>
+            <td></td>
+            <td></td>
             <td>Dưới cầu Bình Lợi</td>
+            <td>Chua dinh vi</td>
+            <td>
+              <button type="button" class="btn btn-primary btn-block mb-1" @click="locate">Dinh Vi</button>              
+              <button type="button" class="btn btn-success btn-block" @click="findCar">Tim xe</button>
+            </td>
           </tr>
           <tr>
             <th scope='row'>3</th>
             <td>Nguyen Van A</td>
             <td>1234567891</td>
             <td>Bình Lợi, Bình Thạnh, TP Hồ Chí Minh</td>
+            <td></td>
+            <td></td>
             <td>Dưới cầu Bình Lợi</td>
+            <td>Chua dinh vi</td>
+            <td>
+              <button type="button" class="btn btn-primary btn-block mb-1" @click="locate">Dinh Vi</button>              
+              <button type="button" class="btn btn-success btn-block" @click="findCar">Tim xe</button>
+            </td>
           </tr>
           <tr>
             <th scope='row'>4</th>
             <td>Nguyen Van A</td>
             <td>1234567891</td>
             <td>Bình Lợi, Bình Thạnh, TP Hồ Chí Minh</td>
+            <td></td>
+            <td></td>
             <td>Dưới cầu Bình Lợi</td>
+            <td>Chua dinh vi</td>
+            <td>
+              <button type="button" class="btn btn-primary btn-block mb-1" @click="locate">Dinh Vi</button>              
+              <button type="button" class="btn btn-success btn-block" @click="findCar">Tim xe</button>
+            </td>
           </tr>
 
         </tbody>
       </table>
+    </div>
+
+    <div class="container">
+        <!-- Content here -->
+        <h3>Map</h3>
+        <div class="map">
+
+        </div>
     </div>
   </div>
 </template>
@@ -161,6 +179,12 @@ Vue.use(cookie);
                         })
                     }
                 })
+            },
+            locate() {
+                alert("Location");
+            },
+            findCar() {
+                alert("Car: 111");
             }
         }
     };
@@ -250,6 +274,14 @@ Vue.use(cookie);
         color: #666666;
         height: 30px;
         padding-left: 20px;
+    }
+
+    .map {
+        background-color: red;
+        width: 100%;
+        height: 300px;
+        margin: 30px 30px;
+        padding: 0 0;
     }
     
     .row3 {
