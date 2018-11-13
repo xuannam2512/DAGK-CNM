@@ -30,6 +30,7 @@ phone varchar(11),
 addressString nvarchar(255),
 noteString nvarchar(255),
 activeDate datetime,
-iat int 
+iat int,
+status nvarchar(50)
 
 )

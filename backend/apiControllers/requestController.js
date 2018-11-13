@@ -50,7 +50,7 @@ router.post('/', (req, res) => {
         });
   
     // sse
-    events.publishCategoryAdded(c);
+    events.publishRequestAdded(c);
 })
 
 router.put('/', (req, res) => {

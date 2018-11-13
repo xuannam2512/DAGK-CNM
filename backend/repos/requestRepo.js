@@ -2,14 +2,14 @@ var db = require('../fn/genericMySql');
 
 exports.loadAll = ()=>{
 
-    var sql = 'select * from requests'
+    var sql = 'select * from requests order by iat desc'
     return db.excuteQuery(sql);
 }
 
 exports.insert = (request)=>{
     //console.log(request.activeDate);
     
-    var sql = `insert into dagkcnm.requests (nameString,phone,addressString,noteString,activeDate,iat) values(N'${request.nameString}','${request.phone}',N'${request.addressString}',N'${request.noteString}','${request.activeDate}',${request.iat})`;
+    var sql = `insert into dagkcnm.requests (nameString,phone,addressString,noteString,activeDate,iat,status) values(N'${request.nameString}','${request.phone}',N'${request.addressString}',N'${request.noteString}','${request.activeDate}',${request.iat}, "Chưa được định vị")`;
     //console.log(sql);
     
     return db.excuteQuery(sql);
