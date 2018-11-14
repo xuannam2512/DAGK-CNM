@@ -19,7 +19,7 @@
       <h3>
         Danh Sách Đặt Xe
       </h3>
-      <br>
+      <br>  
       <table class='table table-bordered table-dark'>
         <thead>
           <tr>
@@ -35,56 +35,15 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <th scope='row'>1</th>
-            <td>Nguyen Van A</td>
-            <td>1234567891</td>
-            <td>Bình Lợi, Bình Thạnh, TP Hồ Chí Minh</td>
+            <!-- looop to load data -->
+          <tr v-for="(request, index) in requests" :key="index">
+            <th scope='row'>{{index}}</th>
+            <td>{{request.nameString}}</td>
+            <td>{{request.phone}}</td>
+            <td>{{request.addressString}}</td>
             <td></td>
             <td></td>
-            <td>Dưới cầu Bình Lợi</td>
-            <td>Chua dinh vi</td>
-            <td>
-              <button type="button" class="btn btn-primary btn-block mb-1" @click="locate">Dinh Vi</button>              
-              <button type="button" class="btn btn-success btn-block" @click="findCar">Tim xe</button>
-            </td>
-          </tr>
-          <tr>
-            <th scope='row'>2</th>
-            <td>Nguyen Van A</td>
-            <td>1234567891</td>
-            <td>Bình Lợi, Bình Thạnh, TP Hồ Chí Minh</td>
-            <td></td>
-            <td></td>
-            <td>Dưới cầu Bình Lợi</td>
-            <td>Chua dinh vi</td>
-            <td>
-              <button type="button" class="btn btn-primary btn-block mb-1" @click="locate">Dinh Vi</button>              
-              <button type="button" class="btn btn-success btn-block" @click="findCar">Tim xe</button>
-            </td>
-          </tr>
-          <tr>
-            <th scope='row'>3</th>
-            <td>Nguyen Van A</td>
-            <td>1234567891</td>
-            <td>Bình Lợi, Bình Thạnh, TP Hồ Chí Minh</td>
-            <td></td>
-            <td></td>
-            <td>Dưới cầu Bình Lợi</td>
-            <td>Chua dinh vi</td>
-            <td>
-              <button type="button" class="btn btn-primary btn-block mb-1" @click="locate">Dinh Vi</button>              
-              <button type="button" class="btn btn-success btn-block" @click="findCar">Tim xe</button>
-            </td>
-          </tr>
-          <tr>
-            <th scope='row'>4</th>
-            <td>Nguyen Van A</td>
-            <td>1234567891</td>
-            <td>Bình Lợi, Bình Thạnh, TP Hồ Chí Minh</td>
-            <td></td>
-            <td></td>
-            <td>Dưới cầu Bình Lợi</td>
+            <td>{{request.noteString}}</td>
             <td>Chua dinh vi</td>
             <td>
               <button type="button" class="btn btn-primary btn-block mb-1" @click="locate">Dinh Vi</button>              
@@ -94,6 +53,8 @@
 
         </tbody>
       </table>
+      <!-- <button @click="load">Load</button> -->
+      <!-- <b-table id="my-table" ref="table" :busy.sync="isBusy" :items="myProvider"></b-table> -->
     </div>
 
     <div class="container">
@@ -107,19 +68,40 @@
 </template>
 
 <script>
-import Vue from 'vue'
-import cookie from 'vue-cookie'
+    var requests = [];
+    let msgServer;
 
-Vue.use(cookie);
+    //install vue-sse package (search vue-sse package)
+    import VueSSE from 'vue-sse'
+    import Vue from 'vue'
+
+    Vue.use(VueSSE);
 
     export default {
         name: 'Home',
-        data() {
+        data() {         
+            
+            //Get data firstly
+            let promise = axios.get('http://localhost:3000/api/requests?ts=0')
+            promise.then((res) => {       
+                console.log(res);          
+                requests = res.data.rows;
+                this.requests = requests;
+            }).catch(error => {
+                return []
+            })
+            
             return {
-                msg: 'Hello World'
-            };
+                // isBusy: false
+                requests: []
+            }
         },
         methods: {
+            myProvider (ctx) {
+                // Here we don't set isBusy prop, so busy state will be handled by table itself
+                // this.isBusy = true
+                
+            },
             logout() {
                 let user = {
                     userId: localStorage.getItem("userId")
@@ -186,7 +168,30 @@ Vue.use(cookie);
             findCar() {
                 alert("Car: 111");
             }
-        }
+        },
+        mounted() {
+            //handle realtime
+            Vue.SSE('http://localhost:3000/requestAddedEvent', { format: 'json'})
+              .then(sse => {
+                  msgServer = sse;
+
+                  sse.onError(e => {
+                      console.error('lost connection; giving up!', e);
+        
+                  sse.close();
+                  });
+
+                  sse.subscribe('REQUEST_ADDED', data => {                                    
+                      this.requests.push(data);
+                  });
+              })
+              .catch(err => {                        
+                  console.error('Failed to connect to server', err);
+              });
+        },
+        destroyed() {
+            msgServer.close();
+        },
     };
 </script>
 

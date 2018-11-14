@@ -21,20 +21,20 @@
       </h3>
       <div class='row1'>
         <div id='name'>
-          <input type='text' placeholder='Họ và tên'>
+          <input v-model="nameString"  name="nameString" type='text' placeholder='Họ và tên'>
         </div>
         <div id='phone'>
-          <input type='text' placeholder='Số điện thoại'>
+          <input v-model="phone" name="phone" type='text' placeholder='Số điện thoại'>
         </div>
       </div>
       <div class='row2'>
-        <input type='text' placeholder='Địa chỉ đón khách'>
+        <input v-model="addressString" name="addressString" type='text' placeholder='Địa chỉ đón khách'>
       </div>
       <div class='row3'>
-        <input type='text' placeholder='Ghi chú'>
+        <input v-model="noteString" name="noteString" type='text' placeholder='Ghi chú'>
       </div>
       <div class='row4'>
-        <button type='button'>Send Request</button>
+        <button type='button' @click="sendRequest">Send Request</button>
       </div>
     </div>
     <div id='table-book'>
@@ -98,7 +98,10 @@ Vue.use(cookie);
         name: 'Home',
         data() {
             return {
-                msg: 'Hello World'
+                nameString: "",
+                phone: "",
+                addressString: "",
+                noteString: ""
             };
         },
         methods: {
@@ -161,6 +164,70 @@ Vue.use(cookie);
                         })
                     }
                 })
+            },
+            sendRequest() {
+                let nameString = this.nameString;
+                let phone = this.phone;
+                let addressString = this.addressString;
+                let noteString = this.noteString;
+
+                if (nameString == '' || phone == '' || addressString == '' || noteString == '') {
+                    alert("Khong duoc de trong bat ky o nao!");
+                } else {
+                    let acccessToken = localStorage.getItem("accessToken");
+
+                    axios({
+                        method:'post',
+                        url: `http://localhost:3000/api/requests`,
+                        data: {
+                            nameString: nameString,
+                            phone: phone,
+                            addressString: addressString,
+                            noteString: noteString
+                        },
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-access-token': acccessToken                             
+                        }
+                    })
+                    .then(response => {
+                        if(response.status === 201) {
+                            alert("request is sent!!");
+                            this.nameString = "";
+                            this.phone = "";
+                            this.noteString = "";
+                            this.addressString = "";
+                        }                        
+                    })
+                    .catch(err => {
+                        console.log("error: " + err);
+                        if(err.response.status === 401) {
+                            let token = localStorage.getItem("refreshToken");
+                            console.log("Nam: " + token);
+                            axios({
+                                method:'post',
+                                url: `http://localhost:3000/api/authen/accesstoken`,
+                                data: {
+                                    refeshToken: token
+                                },
+                                headers: {
+                                    'Content-Type': 'application/json'                              
+                                }
+                            })
+                            .then((response) => {
+                                if(response.status === 200) {
+                                    let accesstoken = response.data.accesToken;
+                                    console.log(accesstoken);
+                                    localStorage.setItem("accessToken", accesstoken);
+                                    this.sendRequest();
+                                }                            
+                            })
+                            .catch(err => {
+                                console.log("error: " + err);
+                            })
+                        }
+                    });
+                }
             }
         }
     };

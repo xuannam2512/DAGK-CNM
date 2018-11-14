@@ -34,18 +34,18 @@ var subscribeEvent = (req, res, event) => {
 //
 // event pub-sub
 
-var CATEGORY_ADDED = 'CATEGORY_ADDED';
+var REQUEST_ADDED = 'REQUEST_ADDED';
 
-var subscribeCategoryAdded = (req, res) => {
-    subscribeEvent(req, res, CATEGORY_ADDED);
+var subscribeRequestAdded = (req, res) => {
+    subscribeEvent(req, res, REQUEST_ADDED);
     
 }
 
-var publishCategoryAdded = categoryObj => {
-    emitter.emit(CATEGORY_ADDED, categoryObj);
+var publishRequestAdded = requestObj => {
+    emitter.emit(REQUEST_ADDED, requestObj);
 }
 
 module.exports = {
-    subscribeCategoryAdded,
-    publishCategoryAdded
+    subscribeRequestAdded,
+    publishRequestAdded
 }
