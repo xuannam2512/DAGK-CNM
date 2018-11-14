@@ -9,7 +9,7 @@ exports.loadAll = ()=>{
 exports.insert = (request)=>{
     //console.log(request.activeDate);
     
-    var sql = `insert into dagkcnm.requests (nameString,phone,addressString,noteString,activeDate,iat,status) values(N'${request.nameString}','${request.phone}',N'${request.addressString}',N'${request.noteString}','${request.activeDate}',${request.iat}, "Chưa được định vị")`;
+    var sql = `insert into dagkcnm.requests (nameString,phone,addressString,noteString,activeDate,iat,statusCode) values(N'${request.nameString}','${request.phone}',N'${request.addressString}',N'${request.noteString}','${request.activeDate}',${request.iat}, 1)`;
     //console.log(sql);
     
     return db.excuteQuery(sql);

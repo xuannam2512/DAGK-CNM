@@ -6,7 +6,7 @@
       <div id='logo-img'></div>
       <div id='title'>
           <div class="logout">
-              <button @click="logout()">
+              <button @click="test()">
                   <i class="fas fa-sign-out-alt"></i>
               </button>
           </div>
@@ -29,16 +29,20 @@
             <th scope='col'>Địa chỉ</th>
             <th scope='col'>Ghi chú</th>
             <th scope='col'>Tình trạng</th>
+            <th></th>
           </tr>
         </thead>
         <tbody id="list-request">
-            <tr v-for="request in requests">
-                <td>{{request.id}}</td>
+            <tr v-for="(request, index) in requests">
+                <td>{{index + 1}}</td>
                 <td>{{request.nameString}}</td>
                 <td>{{request.phone}}</td>
                 <td>{{request.addressString}}</td>
                 <td>{{request.noteString}}</td>
-                <td>"Đã định vị"</td>
+                <td>{{request.statusString}}</td>
+                <td>
+                    <button v-if="request.statusCode > 2" type="button" class="btn btn-info btn-sm">Xem chi tiết</button>
+                </td>
             </tr>
 		</tbody>
       </table>
@@ -48,25 +52,41 @@
 </template>
 
 <script>
+
+let msgServer;
+
 import Vue from 'vue'
 import cookie from 'vue-cookie'
-
-import Home from './Home'
-import HomeComponent from '../router/index.js'
+import VueSSE from 'vue-sse'
 
 Vue.use(cookie);
 
     export default {
         name: 'Home',
         data() {
+            let promise = this.$axios.get('http://localhost:3000/api/requests?ts=0')
+            promise.then((res) => {
+                var rows = res.data.rows;
+                for (var i = 0; i < rows.length; i++) {
+                    var statusCode = rows[i].statusCode;
+                    if (statusCode == 1){
+                        rows[i].statusString = "Chưa được định vị";
+                    } else if (statusCode == 2){
+                        rows[i].statusString = "Đã định vị xong";
+                    } else if (statusCode == 3){
+                        rows[i].statusString = "Đã có xe nhận";
+                    } else if (statusCode == 4){
+                        rows[i].statusString = "Đang duy chuyển";
+                    } else if (statusCode == 5){
+                        rows[i].statusString = "Đã hoàn thành";
+                    }
+                }
+                this.requests = res.data.rows;
+            }).catch(error => {
+                return []
+            })
             return {
-                requests: [{
-                    id: 1,
-                    nameString: "Duc",
-                    phone: "0123",
-                    addressString: "tc",
-                    noteString: "note"
-                }]
+                requests: []
             }
         },
         methods: {
@@ -81,7 +101,7 @@ Vue.use(cookie);
                     let encodedValue = encodeURIComponent(user[property]);
                     formBody.push(encodedKey + "=" + encodedValue);
                 }
-                formBody = formBody.join("&");             
+                formBody = formBody.join("&");         
 
                 axios({
                     method:'post',
@@ -106,40 +126,30 @@ Vue.use(cookie);
                 })
             },
             setupSSE() {
-                if (typeof (EventSource) === 'undefined') {
-                    console.log('not support');
-                    return;
-                }
-
-                var src = new EventSource('http://localhost:3000/requestAddedEvent');
-
-                src.onerror = function (e) {
-                    console.log('error: ' + e);
-                }
-
-                src.addEventListener('REQUEST_ADDED', function (e) {
-                    var data = JSON.parse(e.data);
-                    var arr = [data];
-                }, false);
-            },
-            loadRequests() {
-                var url = 'http://localhost:3000/api/requests?ts=0';
-                axios.get(url)
-                    .then(function (res) {
-
-                    }).catch(function (err) {
-                        console.log(err);
-                    })
+                
             }
+        },
+        mounted() {
+            Vue.SSE('http://localhost:3000/requestAddedEvent', { format: 'json'})
+            .then(sse => {
+                msgServer = sse;
+                sse.onError(e => {
+                      console.error('lost connection; giving up!', e);
+        
+                sse.close();
+                });
+                sse.subscribe('REQUEST_ADDED', data => {
+                    data.statusCode = 1;
+                    data.statusString = "Chưa được định vị";
+                    this.requests.push(data);
+                });
+            })
+            .catch(err => {                        
+                console.error('Failed to connect to server', err);
+            });
         }
 
     };
-
-    window.addEventListener('DOMContentLoaded', function(event) {
-        Home.methods.setupSSE();
-        Home.methods.loadRequests();
-    });
-
 </script>
 
 <style>

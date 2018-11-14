@@ -5,30 +5,15 @@ import Login from '../components/Login.vue'
 import Home from '../components/Home.vue'
 import Register from '../components/register.vue'
 
+import BootstrapVue from 'bootstrap-vue'
+import VueSSE from 'vue-sse'
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
+
 Vue.use(Router)
+Vue.use(BootstrapVue)
 Vue.use(VueCookie)
-
-var validToken = (token) => {
-  console.log("Valid token: " + token);
-
-  axios({
-    method:'get',
-    url: `http://localhost:3000/api/authen/${token}`,
-  })
-  .then(response => {
-    console.log(response);
-    if(response.status === 200) {
-      console.log("check success");
-      return true;
-    }
-  }).catch(error => {
-    // There was an error so redirect
-    console.log("error: " + error);
-    window.location.href = "/login";
-    return false;
-  })
-
- }
+Vue.use(VueSSE) 
 
 export default new Router({
   routes: [
