@@ -6,7 +6,7 @@
       <div id='logo-img'></div>
       <div id='title'>
           <div class="logout">
-              <button @click="test()">
+              <button @click="logout()">
                   <i class="fas fa-sign-out-alt"></i>
               </button>
           </div>
@@ -142,6 +142,27 @@ Vue.use(cookie);
                     data.statusCode = 1;
                     data.statusString = "Chưa được định vị";
                     this.requests.push(data);
+                });
+            })
+            .catch(err => {                        
+                console.error('Failed to connect to server', err);
+            });
+
+            Vue.SSE('http://localhost:3000/requestChangedEvent', { format: 'json'})
+            .then(sse => {
+                msgServer = sse;
+                sse.onError(e => {
+                      console.error('lost connection; giving up!', e);
+        
+                sse.close();
+                });
+                sse.subscribe('REQUEST_CHANGED', data => {
+                    for (var i = 0; i < this.requests.length; i++) {
+                        if (this.requests[i].id == data.id) {
+                            this.requests.splice(i, 1, data);
+                            break;
+                        }
+                    }
                 });
             })
             .catch(err => {                        

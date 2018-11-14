@@ -23,3 +23,9 @@ exports.update = (request)=>{
     
     return db.excuteQuery(sql);
 }
+
+exports.updateDetail = (request) => {
+    var sql = `update  requests set nameString = "${request.nameString}", phone = "${request.phone}", addressString = "${request.addressString}", noteString = "${request.noteString}", statusCode = ${request.statusCode} where id = ${request.id}`;
+    console.log(sql);
+    return db.excuteQuery(sql);
+}
