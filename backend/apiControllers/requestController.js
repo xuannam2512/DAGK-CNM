@@ -50,10 +50,11 @@ router.post('/', (req, res) => {
         });
   
     // sse
-    events.publishCategoryAdded(c);
+    events.publishRequestAdded(c);
 })
 
 router.put('/', (req, res) => {
+    console.log(req.body);
     var c = {
         id: req.body.id,
         addressString : req.body.addressString,
@@ -73,9 +74,33 @@ router.put('/', (req, res) => {
             res.statusCode = 204;
             console.log(`err : ${err}`);
         });
-  
 })
 
+router.put('/updateDetail', (req, res) => {
+    console.log(req.body);
+    var c = {
+        id: req.body.id,
+        nameString : req.body.nameString,
+        phone: req.body.phone,
+        addressString: req.body.addressString,
+        noteString: req.body.noteString,
+        statusCode: req.body.statusCode
+    }
 
+    requestRepo.updateDetail(c)
+    .then(data=>
+    {
+        res.statusCode = 201;
+        res.json({
+            msg: 'updated'
+        });
+    })
+        .catch(err => {
+            res.statusCode = 204;
+            console.log(`err : ${err}`);
+        });
+  
+    events.publishRequestChanged(c);
+})
 
 module.exports = router;

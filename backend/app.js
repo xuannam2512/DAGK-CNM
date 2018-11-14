@@ -22,7 +22,8 @@ app.get('/api', (req, res) => {
 })
 app.use('/api/requests',requestController);
 //SSE
-app.get('/categoryAddedEvent', events.subscribeCategoryAdded);
+app.get('/requestAddedEvent', events.subscribeRequestAdded);
+app.get('/requestChangedEvent', events.subscribeRequestChanged);
 
 var port = process.env.PORT || 3000;
 app.listen(port, () => {
