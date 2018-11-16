@@ -34,7 +34,8 @@ router.post('/', (req, res) => {
         addressString :req.body.addressString,
         noteString: req.body.noteString,
         activeDate: moment().format('YYYY/MM/DD'),
-        iat: moment().unix()
+        iat: moment().unix(),
+        status: req.body.status        
     }
 
     requestRepo.insert(c)
@@ -54,26 +55,41 @@ router.post('/', (req, res) => {
 })
 
 router.put('/', (req, res) => {
-    var c = {
-        id: req.body.id,
-        addressString : req.body.addressString,
-        x : req.body.x,
-        y : req.body.y
-    }
 
-    requestRepo.update(c)
+    console.log(req.body);
+    requestRepo.update(req.body)
     .then(data=>
     {
-        res.statusCode = 201;
+        res.statusCode = 200;
         res.json({
             msg: 'updated'
         });
     })
-        .catch(err => {
-            res.statusCode = 204;
-            console.log(`err : ${err}`);
-        });
+    .catch(err => {
+        res.statusCode = 204;
+        console.log(`err : ${err}`);
+    });
+
+    events.publishRequestChangeStatus(req.body);
   
+})
+
+router.put('/status', (req, res) => {
+    console.log("set status");
+    requestRepo.updateStatus(req.body)
+    .then(value => {
+        res.statusCode = 200;
+        res.json({
+            msg: "updated"
+        });
+    })
+    .catch(err => {
+        res.statusCode = 500;
+        res.end();
+    });
+
+
+    events.publishRequestChangeStatus(req.body);
 })
 
 

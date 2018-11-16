@@ -6,7 +6,7 @@ var userRepo = require('../repos/userRepo');
 var authenRepo = require('../repos/authenRepo');
 var verifyAccessToken = require('../repos/authenRepo').verifyAccessToken;
 //test
-router.get('/', (req, res) => {
+router.get('/',verifyAccessToken, (req, res) => {
     // console.log(req.body);
     userRepo.loadAll()
         .then(data => {

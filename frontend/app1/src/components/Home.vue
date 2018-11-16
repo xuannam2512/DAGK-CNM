@@ -183,7 +183,8 @@ Vue.use(cookie);
                             nameString: nameString,
                             phone: phone,
                             addressString: addressString,
-                            noteString: noteString
+                            noteString: noteString,
+                            status: "Chua dinh vi"
                         },
                         headers: {
                             'Content-Type': 'application/json',

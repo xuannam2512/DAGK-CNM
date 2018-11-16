@@ -136,7 +136,7 @@ function loadMap(address) {
         if (status === 'OK') {
             $(mapObject).closest('tr').find('td:eq(2)').text(results[0].formatted_address)  ;
             locationObject = results[0].geometry.location;
-            
+            console.log(results[0].geometry.location);
             map.setCenter(results[0].geometry.location);
             markerIndex = new google.maps.Marker({
                 map: map,
@@ -160,8 +160,9 @@ function loadMap(address) {
                     map: map,
                     position: results[0].geometry.location
                 });
+                console.log(results);
                 console.log(`vi tri: ${results[0].geometry.location} || ten dia chi : ${results[0].formatted_address}`);
-
+                console.log(results[0].geometry.location.toJSON());
             }
         });
     });

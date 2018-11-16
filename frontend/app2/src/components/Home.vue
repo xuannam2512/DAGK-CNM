@@ -41,13 +41,13 @@
             <td>{{request.nameString}}</td>
             <td>{{request.phone}}</td>
             <td>{{request.addressString}}</td>
-            <td></td>
-            <td></td>
+            <td>{{request.x}}</td>
+            <td>{{request.y}}</td>
             <td>{{request.noteString}}</td>
-            <td>Chua dinh vi</td>
+            <td>{{request.status}}</td>
             <td>
-              <button type="button" class="btn btn-primary btn-block mb-1" @click="locate">Dinh Vi</button>              
-              <button type="button" class="btn btn-success btn-block" @click="findCar">Tim xe</button>
+              <button type="button" class="btn btn-primary btn-block mb-1" @click="locate(index)">Dinh Vi</button>                            
+              <button type="button" class="btn btn-success btn-block" @click="save(index)">Luu</button>
             </td>
           </tr>
 
@@ -60,9 +60,7 @@
     <div class="container">
         <!-- Content here -->
         <h3>Map</h3>
-        <div class="map">
-
-        </div>
+        <div class="google-map" :id="mapName"></div>
     </div>
   </div>
 </template>
@@ -70,6 +68,10 @@
 <script>
     var requests = [];
     let msgServer;
+    var map;
+    var address = "Bình Lợi, Bình Thạnh, TP Hồ Chí Minh";
+    var markerIndex;
+    var locationObject;
 
     //install vue-sse package (search vue-sse package)
     import VueSSE from 'vue-sse'
@@ -79,29 +81,32 @@
 
     export default {
         name: 'Home',
+        props: ['name'],
         data() {         
-            
             //Get data firstly
-            let promise = axios.get('http://localhost:3000/api/requests?ts=0')
-            promise.then((res) => {       
-                console.log(res);          
-                requests = res.data.rows;
+            axios({
+                method:'get',
+                url: `http://localhost:3000/api/requests?ts=0`,
+                headers: {                    
+                    'x-access-token': localStorage.getItem("accessToken")
+                }
+            })
+            .then(res => {
+                requests = res.data.rows;           
                 this.requests = requests;
-            }).catch(error => {
+            })
+            .catch(err => {
+                console.log(err);
                 return []
             })
             
             return {
                 // isBusy: false
-                requests: []
+                requests: [],
+                mapName: this.name + "-map"
             }
         },
         methods: {
-            myProvider (ctx) {
-                // Here we don't set isBusy prop, so busy state will be handled by table itself
-                // this.isBusy = true
-                
-            },
             logout() {
                 let user = {
                     userId: localStorage.getItem("userId")
@@ -137,7 +142,7 @@
                     alert("error: " + err);
                     if(err.response.status === 401) {
                         let token = localStorage.getItem("refreshToken");
-                        console.log("Nam: " + token);
+                        alert("err: " + err);
                         axios({
                             method:'post',
                             url: `http://localhost:3000/api/authen/accesstoken`,
@@ -162,40 +167,211 @@
                     }
                 })
             },
-            locate() {
-                alert("Location");
+            save(index) {
+                alert(index);
+                axios({
+                    method:'put',
+                    url: `http://localhost:3000/api/requests`,
+                    data: {
+                        	id: this.requests[index].id,
+                            nameString: this.requests[index].nameString,
+                            phone: this.requests[index].phone,
+                            addressString: this.requests[index].addressString,
+                            x: this.requests[index].x,
+                            y: this.requests[index].y,
+                            status: "Da dinh vi",
+                            noteString: this.requests[index].noteString
+                    },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-access-token': localStorage.getItem("accessToken")
+                    }
+                })
+                .then(res => {
+                    console.log(res);
+                })
+                .catch(err => {
+                    if(err.response.status === 401) {
+                        let token = localStorage.getItem("refreshToken");                        
+                        axios({
+                            method:'post',
+                            url: `http://localhost:3000/api/authen/accesstoken`,
+                            data: {
+                                refeshToken: token
+                            },
+                            headers: {
+                                'Content-Type': 'application/json'                              
+                            }
+                        })
+                        .then((response) => {
+                            if(response.status === 200) {
+                                let accesstoken = response.data.accesToken;                                
+                                localStorage.setItem("accessToken", accesstoken);
+                                this.save(index);
+                            }                            
+                        })
+                        .catch(err => {
+                            console.log("error: " + err);
+                        });
+                    }
+                    console.log("err: " + err);
+                })
             },
-            findCar() {
-                alert("Car: 111");
+            locate(index) {
+                let address = "";
+                address = this.requests[index].addressString;
+                var self = this;
+
+                //set status by call api
+                axios({
+                    method:'put',
+                    url: `http://localhost:3000/api/requests`,
+                    data: {
+                        	id: this.requests[index].id,
+                            nameString: this.requests[index].nameString,
+                            phone: this.requests[index].phone,
+                            addressString: this.requests[index].addressString,
+                            x: this.requests[index].x,
+                            y: this.requests[index].y,
+                            status: "Dang dinh vi",
+                            noteString: this.requests[index].noteString
+                    },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-access-token': localStorage.getItem("accessToken")
+                    }
+                })
+                .then(res => {
+                    if (res.status === 200) {   
+                        console.log("jump here");                                     
+                    }
+                })
+                .catch(err => {
+                    alert("error: " + err);
+                    if(err.response.status === 401) {
+                        let token = localStorage.getItem("refreshToken");                        
+                        axios({
+                            method:'post',
+                            url: `http://localhost:3000/api/authen/accesstoken`,
+                            data: {
+                                refeshToken: token
+                            },
+                            headers: {
+                                'Content-Type': 'application/json'                              
+                            }
+                        })
+                        .then((response) => {
+                            if(response.status === 200) {
+                                let accesstoken = response.data.accesToken;                                
+                                localStorage.setItem("accessToken", accesstoken);
+                                this.locate(index);
+                            }                            
+                        })
+                        .catch(err => {
+                            console.log("error: " + err);
+                        });
+                    }
+                })
+
+                map = new google.maps.Map(document.getElementById(this.mapName), {
+                    zoom: 18,
+                    center: { lat: 10.8230989, lng: 106.6296638 }
+                });
+                var geocoder = new google.maps.Geocoder();            
+                
+                //load map and set maker with address
+                geocoder.geocode({ 'address':  address }, function (results, status) {
+                    if (status === 'OK') {
+                        locationObject = results[0].geometry.location;
+                        map.setCenter(results[0].geometry.location);
+                        markerIndex = new google.maps.Marker({
+                            map: map,
+                            position: results[0].geometry.location
+                        });
+                    }
+                });
+
+                //load map and set maker when choose any position on map by left click mouse on map
+                google.maps.event.addListener(map, 'click', function (event) {
+                markerIndex.setMap(null);                               
+                geocoder.geocode({ 'location': event.latLng }, function (results, status) {
+                    if (status === 'OK') {
+                        locationObject = results[0].geometry.location;
+                        map.setCenter(results[0].geometry.location);
+                        markerIndex = new google.maps.Marker({
+                            map: map,
+                            position: results[0].geometry.location
+                        });
+                        console.log(results[0].geometry.location.toJSON());  
+                        self.requests[index].x =  results[0].geometry.location.toJSON().lat;
+                        self.requests[index].y =  results[0].geometry.location.toJSON().lng;
+                    }
+                });
+            });
             }
         },
         mounted() {
-            //handle realtime
+            let self = this;
+            //handle realtime: post new request
             Vue.SSE('http://localhost:3000/requestAddedEvent', { format: 'json'})
-              .then(sse => {
-                  msgServer = sse;
-
-                  sse.onError(e => {
-                      console.error('lost connection; giving up!', e);
+            .then(sse => {
+                msgServer = sse;
+                sse.onError(e => {
+                    console.error('lost connection; giving up!', e);
         
-                  sse.close();
-                  });
+                sse.close();
+                });
+                sse.subscribe('REQUEST_ADDED', data => {                                    
+                    self.requests.push(data);
+                });
+            })
+            .catch(err => {                        
+                console.error('Failed to connect to server', err);
+            });
 
-                  sse.subscribe('REQUEST_ADDED', data => {                                    
-                      this.requests.push(data);
-                  });
-              })
-              .catch(err => {                        
-                  console.error('Failed to connect to server', err);
-              });
-        },
-        destroyed() {
-            msgServer.close();
-        },
+            //handle realtime: change status
+
+            Vue.SSE('http://localhost:3000/requestChangeStatus', { format: 'json'})
+            .then(sse => {
+                msgServer = sse;
+                sse.onError(e => {
+                    console.error('lost connection; giving up!', e);
+        
+                sse.close();
+                });
+                sse.subscribe('REQUEST_CHANGE_STATUS', data => {                                    
+                    for(let i = 0; i < self.requests.length; i++) {
+                        if(self.requests[i].id == data.id) {
+                            self.requests[i].status = data.status;
+                            self.requests[i].x = data.x;
+                            self.requests[i].y = data.y;
+                        }
+                    }
+                });
+            })
+            .catch(err => {                        
+                console.error('Failed to connect to server', err);
+            });
+
+            //init map
+            const element = document.getElementById(this.mapName)
+            const options = {
+                zoom: 14,
+                center: new google.maps.LatLng(51.501527,-0.1921837)
+            }
+            const map = new google.maps.Map(element, options);
+           
+        }
     };
 </script>
 
-<style>
+<style scoped>
+    .google-map {
+        width: 800px;
+        height: 600px;
+        margin: 0 auto;
+        background: gray;
+        }
     #app1 {
         background-image: linear-gradient(to right, #5F56CC, #B651C2);
         height: 100vh;
