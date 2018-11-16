@@ -69,7 +69,6 @@
     var requests = [];
     let msgServer;
     var map;
-    var address = "Bình Lợi, Bình Thạnh, TP Hồ Chí Minh";
     var markerIndex;
     var locationObject;
 
@@ -331,7 +330,7 @@
 
             //handle realtime: change status
 
-            Vue.SSE('http://localhost:3000/requestChangeStatus', { format: 'json'})
+            Vue.SSE('http://localhost:3000/requestChangedEvent', { format: 'json'})
             .then(sse => {
                 msgServer = sse;
                 sse.onError(e => {
@@ -339,7 +338,7 @@
         
                 sse.close();
                 });
-                sse.subscribe('REQUEST_CHANGE_STATUS', data => {                                    
+                sse.subscribe('REQUEST_CHANGED', data => {                                    
                     for(let i = 0; i < self.requests.length; i++) {
                         if(self.requests[i].id == data.id) {
                             self.requests[i].status = data.status;

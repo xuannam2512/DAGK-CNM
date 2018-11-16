@@ -26,7 +26,7 @@ app.get('/api', (req, res) => {
 app.use('/api/requests', verifyAccessToken, requestController);
 //SSE
 app.get('/requestAddedEvent', events.subscribeRequestAdded);
-app.get('/requestChangeStatus', events.subscribeRequestChangeStatus);
+app.get('/requestChangedEvent', events.subscribeRequestChanged);
 
 var port = process.env.PORT || 3000;
 app.listen(port, () => {

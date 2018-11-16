@@ -55,43 +55,32 @@ router.post('/', (req, res) => {
 })
 
 router.put('/', (req, res) => {
-
     console.log(req.body);
-    requestRepo.update(req.body)
+    var c = {
+        id: req.body.id,
+        nameString : req.body.nameString,
+        phone: req.body.phone,
+        addressString: req.body.addressString,
+        noteString: req.body.noteString,
+        status: req.body.status,
+        x: req.body.x,
+        y: req.body.y
+    }
+
+    requestRepo.updateDetail(c)
     .then(data=>
     {
-        res.statusCode = 200;
+        res.statusCode = 201;
         res.json({
             msg: 'updated'
         });
     })
-    .catch(err => {
-        res.statusCode = 204;
-        console.log(`err : ${err}`);
-    });
-
-    events.publishRequestChangeStatus(req.body);
-  
-})
-
-router.put('/status', (req, res) => {
-    console.log("set status");
-    requestRepo.updateStatus(req.body)
-    .then(value => {
-        res.statusCode = 200;
-        res.json({
-            msg: "updated"
+        .catch(err => {
+            res.statusCode = 204;
+            console.log(`err : ${err}`);
         });
-    })
-    .catch(err => {
-        res.statusCode = 500;
-        res.end();
-    });
-
-
-    events.publishRequestChangeStatus(req.body);
+  
+    events.publishRequestChanged(c);
 })
-
-
 
 module.exports = router;

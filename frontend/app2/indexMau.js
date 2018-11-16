@@ -245,13 +245,13 @@ var setupSSE = function () {
         return;
     }
 
-    var src = new EventSource('http://localhost:3000/categoryAddedEvent');
+    var src = new EventSource('http://localhost:3000/requestAddedEvent');
 
     src.onerror = function (e) {
         console.log('error: ' + e);
     }
 
-    src.addEventListener('CATEGORY_ADDED', function (e) {
+    src.addEventListener('REQUEST_ADDED', function (e) {
         var data = JSON.parse(e.data);
         var arr = [data];
 
@@ -264,7 +264,7 @@ var setupSSE = function () {
     }, false);
 }
 
-var loadCategories = function () {
+var loadRequests = function () {
     var url = 'http://localhost:3000/api/requests?ts=0';
     axios.get(url)
         .then(function (res) {
