@@ -31,5 +31,7 @@ addressString nvarchar(255),
 noteString nvarchar(255),
 activeDate datetime,
 iat int,
-statusCode int
+status varchar(50) not null,
+x varchar(50),
+y varchar(50)
 )

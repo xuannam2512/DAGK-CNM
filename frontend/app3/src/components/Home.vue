@@ -33,15 +33,15 @@
           </tr>
         </thead>
         <tbody id="list-request">
-            <tr v-for="(request, index) in requests">
-                <td>{{index + 1}}</td>
+            <tr v-for="(request, index) in requests" :key="index">
+                <td>{{index + 1}}</td> 
                 <td>{{request.nameString}}</td>
                 <td>{{request.phone}}</td>
                 <td>{{request.addressString}}</td>
                 <td>{{request.noteString}}</td>
                 <td>{{request.statusString}}</td>
                 <td>
-                    <button v-if="request.statusCode > 2" type="button" class="btn btn-info btn-sm">Xem chi tiết</button>
+                    <button v-if="request.status == 'Da co xe'" type="button" class="btn btn-info btn-sm">Xem chi tiết</button>
                 </td>
             </tr>
 		</tbody>
@@ -64,23 +64,14 @@ Vue.use(cookie);
     export default {
         name: 'Home',
         data() {
-            let promise = this.$axios.get('http://localhost:3000/api/requests?ts=0')
-            promise.then((res) => {
-                var rows = res.data.rows;
-                for (var i = 0; i < rows.length; i++) {
-                    var statusCode = rows[i].statusCode;
-                    if (statusCode == 1){
-                        rows[i].statusString = "Chưa được định vị";
-                    } else if (statusCode == 2){
-                        rows[i].statusString = "Đã định vị xong";
-                    } else if (statusCode == 3){
-                        rows[i].statusString = "Đã có xe nhận";
-                    } else if (statusCode == 4){
-                        rows[i].statusString = "Đang duy chuyển";
-                    } else if (statusCode == 5){
-                        rows[i].statusString = "Đã hoàn thành";
-                    }
+            let promise = this.$axios.get('http://localhost:3000/api/requests?ts=0', {
+                'headers': {
+                    'x-access-token': localStorage.getItem("accessToken")
                 }
+            })
+            promise.then((res) => {
+                var rows = res.data.rows;      
+                console.log(rows);          
                 this.requests = res.data.rows;
             }).catch(error => {
                 return []
@@ -124,9 +115,6 @@ Vue.use(cookie);
                 .catch((err) => {
                     alert("error: " + err);
                 })
-            },
-            setupSSE() {
-                
             }
         },
         mounted() {
@@ -138,9 +126,7 @@ Vue.use(cookie);
         
                 sse.close();
                 });
-                sse.subscribe('REQUEST_ADDED', data => {
-                    data.statusCode = 1;
-                    data.statusString = "Chưa được định vị";
+                sse.subscribe('REQUEST_ADDED', data => {                  
                     this.requests.push(data);
                 });
             })

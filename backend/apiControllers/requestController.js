@@ -34,7 +34,8 @@ router.post('/', (req, res) => {
         addressString :req.body.addressString,
         noteString: req.body.noteString,
         activeDate: moment().format('YYYY/MM/DD'),
-        iat: moment().unix()
+        iat: moment().unix(),
+        status: req.body.status        
     }
 
     requestRepo.insert(c)
@@ -57,34 +58,13 @@ router.put('/', (req, res) => {
     console.log(req.body);
     var c = {
         id: req.body.id,
-        addressString : req.body.addressString,
-        x : req.body.x,
-        y : req.body.y
-    }
-
-    requestRepo.update(c)
-    .then(data=>
-    {
-        res.statusCode = 201;
-        res.json({
-            msg: 'updated'
-        });
-    })
-        .catch(err => {
-            res.statusCode = 204;
-            console.log(`err : ${err}`);
-        });
-})
-
-router.put('/updateDetail', (req, res) => {
-    console.log(req.body);
-    var c = {
-        id: req.body.id,
         nameString : req.body.nameString,
         phone: req.body.phone,
         addressString: req.body.addressString,
         noteString: req.body.noteString,
-        statusCode: req.body.statusCode
+        status: req.body.status,
+        x: req.body.x,
+        y: req.body.y
     }
 
     requestRepo.updateDetail(c)

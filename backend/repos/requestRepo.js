@@ -7,9 +7,9 @@ exports.loadAll = ()=>{
 }
 
 exports.insert = (request)=>{
-    //console.log(request.activeDate);
+    console.log(request);
     
-    var sql = `insert into dagkcnm.requests (nameString,phone,addressString,noteString,activeDate,iat,statusCode) values(N'${request.nameString}','${request.phone}',N'${request.addressString}',N'${request.noteString}','${request.activeDate}',${request.iat}, 1)`;
+    var sql = `insert into dagkcnm.requests (nameString,phone,addressString,noteString,activeDate,iat,status) values(N'${request.nameString}','${request.phone}',N'${request.addressString}',N'${request.noteString}','${request.activeDate}',${request.iat}, N'${request.status}')`;
     //console.log(sql);
     
     return db.excuteQuery(sql);
@@ -18,14 +18,16 @@ exports.insert = (request)=>{
 exports.update = (request)=>{
     //console.log(request.activeDate);
     
-    var sql = `update  requests set x = ${request.x} , y=${request.y} , addressString =N'${request.addressString}' where id = ${request.id}`;
+    var sql = `update  requests set nameString = N'${request.nameString}', x = ${request.x} , y=${request.y} ,addressString =N'${request.addressString}', phone = '${request.phone}', noteString = N'${request.noteString}', status = N'${request.status}' where id = ${request.id}`;
     //console.log(sql);
     
     return db.excuteQuery(sql);
 }
 
 exports.updateDetail = (request) => {
-    var sql = `update  requests set nameString = "${request.nameString}", phone = "${request.phone}", addressString = "${request.addressString}", noteString = "${request.noteString}", statusCode = ${request.statusCode} where id = ${request.id}`;
+    console.log(request);
+    console.log(request.status);
+    var sql = `update  requests set nameString = N'${request.nameString}', phone = '${request.phone}', addressString = N'${request.addressString}', noteString = N'${request.noteString}', status = N'${request.status}', x = '${request.x}', y = '${request.y}' where id = ${request.id}`;
     console.log(sql);
     return db.excuteQuery(sql);
 }
