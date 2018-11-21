@@ -15,6 +15,7 @@
         </h1>        
       </div>
     </div>
+    <GoogleMap name="example"></GoogleMap>
     <div id='table-book'>
       <h3>
         Danh Sách Đặt Xe
@@ -39,9 +40,9 @@
                 <td>{{request.phone}}</td>
                 <td>{{request.addressString}}</td>
                 <td>{{request.noteString}}</td>
-                <td>{{request.statusString}}</td>
+                <td>{{request.status}}</td>
                 <td>
-                    <button v-if="request.status == 'Da co xe'" type="button" class="btn btn-info btn-sm">Xem chi tiết</button>
+                    <button v-if="request.status == 'Da co xe'" type="button" class="btn btn-info btn-sm" @click="getRoute(request.addressString)">Xem chi tiết</button>
                 </td>
             </tr>
 		</tbody>
@@ -58,13 +59,17 @@ let msgServer;
 import Vue from 'vue'
 import cookie from 'vue-cookie'
 import VueSSE from 'vue-sse'
+import GoogleMap from './GoogleMap'
 
 Vue.use(cookie);
 
     export default {
         name: 'Home',
+        components: {
+            GoogleMap
+        },
         data() {
-            let promise = this.$axios.get('http://localhost:3000/api/requests?ts=0', {
+            let promise = axios.get('http://localhost:3000/api/requests?ts=0', {
                 'headers': {
                     'x-access-token': localStorage.getItem("accessToken")
                 }
@@ -81,6 +86,9 @@ Vue.use(cookie);
             }
         },
         methods: {
+            getRoute(requestAddress) {
+                GoogleMap.methods.getRoute(requestAddress, '227 Nguyen Van Cu');
+            },
             logout() {
                 let user = {
                     userId: localStorage.getItem("userId")
