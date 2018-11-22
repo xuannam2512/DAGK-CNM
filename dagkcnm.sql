@@ -35,3 +35,13 @@ status varchar(50) not null,
 x varchar(50),
 y varchar(50)
 )
+--tao moi ngay 22/11/2018
+create table drivers (
+	id int(11) unique auto_increment not null,    
+    x varchar(50),
+    y varchar(50),
+    userID int(11),
+    status nvarchar(50),
+    primary key(id),
+    FOREIGN key (userID) references users(userId)
+)ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

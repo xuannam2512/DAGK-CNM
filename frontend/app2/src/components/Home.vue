@@ -166,8 +166,10 @@
                     }
                 })
             },
-            save(index) {
-                alert(index);
+            save(index) {  
+                console.log(index);
+                console.log(this.requests);
+                console.log(this.requests[index].id);           
                 axios({
                     method:'put',
                     url: `http://localhost:3000/api/requests`,
@@ -179,7 +181,8 @@
                             x: this.requests[index].x,
                             y: this.requests[index].y,
                             status: "Da dinh vi",
-                            noteString: this.requests[index].noteString
+                            noteString: this.requests[index].noteString,
+                            isFindDriver: true
                     },
                     headers: {
                         'Content-Type': 'application/json',
@@ -187,6 +190,7 @@
                     }
                 })
                 .then(res => {
+                    alert("Luu thanh cong!");
                     console.log(res);
                 })
                 .catch(err => {
@@ -221,6 +225,27 @@
                 address = this.requests[index].addressString;
                 var self = this;
 
+                //init map and locate address
+                map = new google.maps.Map(document.getElementById(this.mapName), {
+                    zoom: 18,
+                    center: { lat: 10.8230989, lng: 106.6296638 }
+                });
+                var geocoder = new google.maps.Geocoder();            
+                
+                //load map and set maker with address
+                geocoder.geocode({ 'address':  address }, function (results, status) {
+                    if (status === 'OK') {
+                        locationObject = results[0].geometry.location;
+                        map.setCenter(results[0].geometry.location);
+                        markerIndex = new google.maps.Marker({
+                            map: map,
+                            position: results[0].geometry.location
+                        });
+                        self.requests[index].x =  results[0].geometry.location.toJSON().lat;
+                        self.requests[index].y =  results[0].geometry.location.toJSON().lng;
+                    }
+                });
+
                 //set status by call api
                 axios({
                     method:'put',
@@ -233,7 +258,8 @@
                             x: this.requests[index].x,
                             y: this.requests[index].y,
                             status: "Dang dinh vi",
-                            noteString: this.requests[index].noteString
+                            noteString: this.requests[index].noteString,
+                            isFindDriver: false
                     },
                     headers: {
                         'Content-Type': 'application/json',
@@ -270,25 +296,7 @@
                             console.log("error: " + err);
                         });
                     }
-                })
-
-                map = new google.maps.Map(document.getElementById(this.mapName), {
-                    zoom: 18,
-                    center: { lat: 10.8230989, lng: 106.6296638 }
-                });
-                var geocoder = new google.maps.Geocoder();            
-                
-                //load map and set maker with address
-                geocoder.geocode({ 'address':  address }, function (results, status) {
-                    if (status === 'OK') {
-                        locationObject = results[0].geometry.location;
-                        map.setCenter(results[0].geometry.location);
-                        markerIndex = new google.maps.Marker({
-                            map: map,
-                            position: results[0].geometry.location
-                        });
-                    }
-                });
+                })                
 
                 //load map and set maker when choose any position on map by left click mouse on map
                 google.maps.event.addListener(map, 'click', function (event) {
@@ -320,7 +328,8 @@
         
                 sse.close();
                 });
-                sse.subscribe('REQUEST_ADDED', data => {                                    
+                sse.subscribe('REQUEST_ADDED', data => {  
+                    console.log(data);                                  
                     self.requests.push(data);
                 });
             })

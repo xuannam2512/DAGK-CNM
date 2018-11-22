@@ -20,7 +20,7 @@ exports.login = (userEntity) => {
     var md5_password = md5(userEntity.password);
     
     
-    var sql =  `select * from	 users where username = '${userEntity.username}' and password = '${md5_password}'`;
+    var sql =  `select * from	 users where username = '${userEntity.username}' and password = '${md5_password}' and permission = ${userEntity.permission}`;
     return db.excuteQuery(sql);
 }
 

@@ -3,6 +3,7 @@ var express = require('express'),
 var router = express.Router();
 var requestRepo = require('../repos/requestRepo');
 var events = require('./events');
+var broadCastAll = require('../ws').broadcastAll
 
 router.get('/', (req, res) => {
     var ts = 0;
@@ -29,6 +30,7 @@ router.get('/', (req, res) => {
 
 router.post('/', (req, res) => {
     var c = {
+        id: 0,
         nameString : req.body.nameString,
         phone : req.body.phone,
         addressString :req.body.addressString,
@@ -41,6 +43,10 @@ router.post('/', (req, res) => {
     requestRepo.insert(c)
     .then(data=>
         {
+            console.log(data.insertId);
+            c.id = data.insertId;
+            // sse
+            events.publishRequestAdded(c);
             res.statusCode = 201;
             res.json({
                 msg: 'inserted'
@@ -48,10 +54,7 @@ router.post('/', (req, res) => {
         })
         .catch(err => {
             console.log(`err : ${err}`);
-        });
-  
-    // sse
-    events.publishRequestAdded(c);
+        });      
 })
 
 router.put('/', (req, res) => {
@@ -75,12 +78,17 @@ router.put('/', (req, res) => {
             msg: 'updated'
         });
     })
-        .catch(err => {
-            res.statusCode = 204;
-            console.log(`err : ${err}`);
-        });
+    .catch(err => {
+        res.statusCode = 204;
+        console.log(`err : ${err}`);
+        res.end();
+    });
   
     events.publishRequestChanged(c);
+
+    if(req.body.isFindDriver) {
+        broadCastAll(c);
+    }    
 })
 
 module.exports = router;

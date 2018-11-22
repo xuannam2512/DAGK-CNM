@@ -1,34 +1,39 @@
 var express = require("express"),
-    bodyParser = require("body-parser"),
-    morgan = require("morgan"),
-    cors = require("cors");
+  bodyParser = require("body-parser"),
+  morgan = require("morgan"),
+  cors = require("cors");
 
 var app = express();
-var userController = require('./apiControllers/userController');
-var authenController = require('./apiControllers/authenController');
-var requestController = require('./apiControllers/requestController');
-var events = require('./apiControllers/events');
-var verifyAccessToken = require('./repos/authenRepo').verifyAccessToken;
+var userController = require("./apiControllers/userController");
+var authenController = require("./apiControllers/authenController");
+var requestController = require("./apiControllers/requestController");
+var driverController = require("./apiControllers/driverController");
+var events = require("./apiControllers/events");
+var verifyAccessToken = require("./repos/authenRepo").verifyAccessToken;
 
-app.use(morgan('dev'));
+app.use(morgan("dev"));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true })); 
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
-app.use('/api/users', userController);
-app.use('/api/authen', authenController);
-app.get('/api', (req, res) => {
-    res.json({
-        "message": "Hello world!!"
-    });
-})
+require('./ws');
+app.use("/api/users", userController);
+app.use("/api/authen", authenController);
+app.use("/api/requests", verifyAccessToken, requestController);
+app.use("/api/drivers", driverController);
 
-app.use('/api/requests', verifyAccessToken, requestController);
+//test
+app.get("/api", (req, res) => {
+  res.json({
+    message: "Hello world!!"
+  });
+});
+
 //SSE
-app.get('/requestAddedEvent', events.subscribeRequestAdded);
-app.get('/requestChangedEvent', events.subscribeRequestChanged);
+app.get("/requestAddedEvent", events.subscribeRequestAdded);
+app.get("/requestChangedEvent", events.subscribeRequestChanged);
 
 var port = process.env.PORT || 3000;
 app.listen(port, () => {
-    console.log(`listening on port ${port}`);
+  console.log(`listening on port ${port}`);
 });
