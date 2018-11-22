@@ -39,7 +39,7 @@
                 <td>{{request.phone}}</td>
                 <td>{{request.addressString}}</td>
                 <td>{{request.noteString}}</td>
-                <td>{{request.statusString}}</td>
+                <td>{{request.status}}</td>
                 <td>
                     <button v-if="request.status == 'Da co xe'" type="button" class="btn btn-info btn-sm">Xem chi tiết</button>
                 </td>
@@ -118,6 +118,7 @@ Vue.use(cookie);
             }
         },
         mounted() {
+            let self = this;
             Vue.SSE('http://localhost:3000/requestAddedEvent', { format: 'json'})
             .then(sse => {
                 msgServer = sse;
@@ -127,7 +128,7 @@ Vue.use(cookie);
                 sse.close();
                 });
                 sse.subscribe('REQUEST_ADDED', data => {                  
-                    this.requests.push(data);
+                    self.requests.push(data);
                 });
             })
             .catch(err => {                        
@@ -143,9 +144,9 @@ Vue.use(cookie);
                 sse.close();
                 });
                 sse.subscribe('REQUEST_CHANGED', data => {
-                    for (var i = 0; i < this.requests.length; i++) {
-                        if (this.requests[i].id == data.id) {
-                            this.requests.splice(i, 1, data);
+                    for (var i = 0; i < self.requests.length; i++) {
+                        if (self.requests[i].id == data.id) {
+                            self.requests[i].status = data.status;
                             break;
                         }
                     }
