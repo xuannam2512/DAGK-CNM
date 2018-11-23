@@ -8,6 +8,7 @@ var userController = require("./apiControllers/userController");
 var authenController = require("./apiControllers/authenController");
 var requestController = require("./apiControllers/requestController");
 var driverController = require("./apiControllers/driverController");
+var driverInfoController = require("./apiControllers/driverInfoController");
 var events = require("./apiControllers/events");
 var verifyAccessToken = require("./repos/authenRepo").verifyAccessToken;
 
@@ -21,6 +22,7 @@ app.use("/api/users", userController);
 app.use("/api/authen", authenController);
 app.use("/api/requests", verifyAccessToken, requestController);
 app.use("/api/drivers", driverController);
+app.use("/api/getDriverInfo", driverInfoController);
 
 //test
 app.get("/api", (req, res) => {
