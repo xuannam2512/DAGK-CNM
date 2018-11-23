@@ -33,9 +33,10 @@ activeDate datetime,
 iat int,
 status varchar(50) not null,
 x varchar(50),
-y varchar(50)
-)
---tao moi ngay 22/11/2018
+y varchar(50),
+driverId int(11)
+);
+-- tao moi ngay 22/11/2018
 create table drivers (
 	id int(11) unique auto_increment not null,    
     x varchar(50),

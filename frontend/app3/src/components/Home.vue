@@ -16,6 +16,7 @@
       </div>
     </div>
     <GoogleMap name="example"></GoogleMap>
+    <div v-if="visible" id="driver-name-div"><h4 id="driver-name">Tài xế: {{driverName}}</h4></div>
     <div id='table-book'>
       <h3>
         Danh Sách Đặt Xe
@@ -42,7 +43,7 @@
                 <td>{{request.noteString}}</td>
                 <td>{{request.status}}</td>
                 <td>
-                    <button v-if="request.status == 'Da co xe'" type="button" class="btn btn-info btn-sm" @click="getRoute(request.addressString)">Xem chi tiết</button>
+                    <button v-if="request.status == 'Da co xe'" type="button" class="btn btn-info btn-sm" @click="getRoute(request)">Xem chi tiết</button>
                 </td>
             </tr>
 		</tbody>
@@ -82,12 +83,31 @@ Vue.use(cookie);
                 return []
             })
             return {
+                visible: false,
+                driverName: "",
                 requests: []
             }
         },
         methods: {
-            getRoute(requestAddress) {
-                GoogleMap.methods.getRoute(requestAddress, '227 Nguyen Van Cu');
+            getRoute(request) {
+
+                axios.get(`http://localhost:3000/api/getDriverInfo/${request.driverId}`, {
+                    'headers': {
+                        'x-access-token': localStorage.getItem("accessToken")
+                    }
+                })
+                .then(res => {
+                    console.log(res.data[0]);
+                    var driverX = res.data[0].x;
+                    var driverY = res.data[0].y;
+                    this.driverName = res.data[0].name;
+                    this.visible = true;
+                    GoogleMap.methods.getRoute(request.addressString, driverX, driverY);
+                })
+                .catch(err => {
+                    console.log(err);
+                    alert("Unable to load driver info!");
+                })
             },
             logout() {
                 let user = {
@@ -188,6 +208,15 @@ Vue.use(cookie);
         height: 150px;
         background-color: red;
         border-radius: 50%;
+    }
+
+
+    #driver-name-div {
+        text-align: center;
+    }
+
+    #driver-name {
+        display: inline-block;
     }
 
     

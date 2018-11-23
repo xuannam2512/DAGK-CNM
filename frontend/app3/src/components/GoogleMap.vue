@@ -19,24 +19,26 @@ export default {
     }
   },
   methods: {
-      getRoute(requestAddress, driverAddress) {
+      getRoute(requestAddress, driverX, driverY) {
         for (var i = 0; i < markers.length; i++) {
-            markers[i].setMap(null);
+          markers[i].setMap(null);
         }
 
         var directionsService = new google.maps.DirectionsService();
         var directionsDisplay = new google.maps.DirectionsRenderer();
         directionsDisplay.setMap(map);
         var request = {
-            origin: driverAddress,
-            destination: requestAddress,
-            travelMode: 'DRIVING'
+          origin: new google.maps.LatLng(driverX, driverY),
+          destination: requestAddress,
+          travelMode: 'DRIVING'
         };
 
+        console.log(request);
+
         directionsService.route(request, function(result, status) {
-            if (status == 'OK') {
-                directionsDisplay.setDirections(result);
-            }
+          if (status == 'OK') {
+            directionsDisplay.setDirections(result);
+          }
         });
       }
   },
