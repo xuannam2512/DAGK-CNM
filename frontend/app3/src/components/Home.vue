@@ -43,7 +43,7 @@
                 <td>{{request.noteString}}</td>
                 <td>{{request.status}}</td>
                 <td>
-                    <button v-if="request.status == 'Da co xe'" type="button" class="btn btn-info btn-sm" @click="getRoute(request)">Xem chi tiết</button>
+                    <button v-if="request.status == 'Da co xe nhan'" type="button" class="btn btn-info btn-sm" @click="getRoute(request)">Xem chi tiết</button>
                 </td>
             </tr>
 		</tbody>
@@ -90,8 +90,8 @@ Vue.use(cookie);
         },
         methods: {
             getRoute(request) {
-
-                axios.get(`http://localhost:3000/api/getDriverInfo/${request.driverId}`, {
+                console.log(request);
+                axios.get(`http://localhost:3000/api/drivers/${request.driverId}`, {
                     'headers': {
                         'x-access-token': localStorage.getItem("accessToken")
                     }
@@ -175,6 +175,7 @@ Vue.use(cookie);
                     for (var i = 0; i < self.requests.length; i++) {
                         if (self.requests[i].id == data.id) {
                             self.requests[i].status = data.status;
+                            self.requests[i].driverId = data.driverId;
                             break;
                         }
                     }

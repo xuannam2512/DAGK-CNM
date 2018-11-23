@@ -23,6 +23,6 @@ exports.findDriversByUserIdAndStatus = function(userId) {
 }
 
 exports.getDriverInfo = driverId => {
-  let sql = `select d.x, d.y, u.name from drivers d, users u where d.userId = u.userId and d.userId = ${driverId}`;
+  let sql = `select d.x, d.y, u.name from drivers d, users u where d.userId = u.userId and d.id = ${driverId}`;
   return db.excuteQuery(sql);
 }

@@ -30,3 +30,9 @@ exports.updateDetail = (request) => {
 
     return db.excuteQuery(sql);
 }
+
+exports.updateDriverId = (driverId, requestId) => {
+    var sql = `update  requests set driverId = ${driverId} where id = ${requestId}`;
+
+    return db.excuteQuery(sql);
+}

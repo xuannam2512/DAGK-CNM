@@ -30,8 +30,10 @@ if (!socketServer) {
 }
 
 var broadcastAll = async function (request) {
+    let i;
+
     console.log(request);
-    request.status = "Dang tin xe";
+    request.status = "Dang tim xe";
     events.publishRequestChanged(request);
     let s = [];
     for (var c of socketServer.clients) {
@@ -40,9 +42,9 @@ var broadcastAll = async function (request) {
     
     //sort
     await sortDistance(s);
-    console.log(s);
+
     console.log("start send request");
-    for(let i = 0; i < s.length; i++){
+    for(i = 0; i < s.length; i++){
         for(let c of socketServer.clients) {
             if (c.protocol === s[i].userId) {
                 console.log("Equal", s[i]);
@@ -62,15 +64,36 @@ var broadcastAll = async function (request) {
     if(response === 'YES') {
         request.status = 'Da co xe nhan';
         await updateRequest(request);
+
+        //update driverId into request table
+        requestRepo.updateDriverId(s[i].id, request.id)
+        .then(value => {
+            let newRequest = {
+                id: request.id,
+                nameString : request.nameString,
+                phone: request.phone,
+                addressString: request.addressString,
+                noteString: request.noteString,
+                status: request.status,
+                x: request.x,
+                y: request.y,
+                driverId: s[i].id
+            }
+            console.log(newRequest);
+            events.publishRequestChanged(newRequest);                     
+        })
+        .catch(err => {
+            console.log("error: ", err);
+        })  
     } else {
         console.log(response);
         request.status = 'Khong co xe nhan';
         await updateRequest(request);
-    }
+        events.publishRequestChanged(request);
+    } 
 
-    events.publishRequestChanged(request);
     response = 'NO'    
-    console.log("done");    
+    console.log("done");
 }
 
 async function updateRequest(object) {

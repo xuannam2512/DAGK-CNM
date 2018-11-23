@@ -11,18 +11,16 @@ router.get("/", verifyAccessToken, (req, res) => {
   });
 });
 
-router.get('/:userId', verifyAccessToken, (req, res) => {
-  let userId = req.params.userId;
-
-  driverRepo.findDriversByUserId(userId)
-  .then(data => {    
-    res.json(data);
-  })
-  .catch(err => {
-    console.log(err);
-    res.json(err);
-  })
-  broadcastAll("Start");
+router.get('/:id', verifyAccessToken, (req, res) => {
+  driverRepo.getDriverInfo(req.params.id)
+    .then(rows => {
+        res.statusCode = 200;
+        res.json(rows);
+    })
+    .catch(err => {
+        res.statusCode = 500;
+        res.end();
+    });
 })
 
 //insert driver
