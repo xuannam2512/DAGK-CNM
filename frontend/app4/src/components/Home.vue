@@ -85,13 +85,15 @@ var requests = [];
 let msgServer;
 var map;
 var markerIndex;
+var markerNewChange;
+var LimitCircle = null;
 var locationObject;
+var locationObjectNew;
 var ws;
 
 //install vue-sse package (search vue-sse package)
 import VueSSE from "vue-sse";
 import Vue from "vue";
-
 Vue.use(VueSSE);
 
 export default {
@@ -269,7 +271,7 @@ export default {
                   if (response.status === 200) {
                     let accesstoken = response.data.accesToken;
                     localStorage.setItem("accessToken", accesstoken);
-                    this.locate(index);
+                    // this.locate(index);
                   }
                 })
                 .catch(err => {
@@ -487,6 +489,20 @@ export default {
     save() {
       let self = this;
 
+      // xóa vị trí marker cũ + xóa vòng tròn giới hạn 100m + thay đổi animation + gán vị trí cũ = vị trí mới
+      if (markerNewChange != null) {
+        markerNewChange.setMap(null);
+        LimitCircle.setMap(null);
+        LimitCircle = null;
+        // xét lại animation cho marker đứng yên
+        markerIndex.setAnimation(google.maps.Animation.DROP);
+        // gán vị trí mới
+        locationObject = locationObjectNew;
+        //
+        self.x = locationObject.lat;
+        self.y = locationObject.lng;
+      }
+
       axios({
         method: "put",
         url: `http://localhost:3000/api/drivers`,
@@ -534,44 +550,71 @@ export default {
               });
           }
         });
+
+      
     },
-    locate() {
-      alert("Locate location");
-      let self = this;
+    //     locate() {
+    //       alert("Locate location");
+    //       let self = this;
 
-      map = new google.maps.Map(document.getElementById(this.mapName), {
-        zoom: 18,
-        center: { lat: 10.8230989, lng: 106.6296638 }
-      });
-      var geocoder = new google.maps.Geocoder();
+    //       map = new google.maps.Map(document.getElementById(this.mapName), {
+    //         zoom: 18,
+    //         center: { lat: 10.8230989, lng: 106.6296638 }
+    //       });
+    //       var geocoder = new google.maps.Geocoder();
 
-      //load map and set maker with address
-      geocoder.geocode({ address: address }, function(results, status) {
-        if (status === "OK") {
-          locationObject = results[0].geometry.location;
-          map.setCenter(results[0].geometry.location);
-          markerIndex = new google.maps.Marker({
-            map: map,
-            position: results[0].geometry.location
-          });
-        }
-      });
+    //       //load map and set maker with address
+    //       geocoder.geocode({ address: address }, function(results, status) {
+    //         if (status === "OK") {
+    //           locationObject = results[0].geometry.location;
+    //           map.setCenter(results[0].geometry.location);
+    //           markerIndex = new google.maps.Marker({
+    //             map: map,
+    //             draggable: true,
+    //             position: results[0].geometry.location
+    //           });
+    //         }
+    //       });
+    //       markerIndex.addListener("click",
+    // function(event) {
+    //   console.log('yeassssssssssssssssssssss');
+    // });
 
-      //load map and set maker when choose any position on map by left click mouse on map
-      google.maps.event.addListener(map, "click", function(event) {
-        markerIndex.setMap(null);
-        geocoder.geocode({ location: event.latLng }, function(results, status) {
-          if (status === "OK") {
-            locationObject = results[0].geometry.location;
-            map.setCenter(results[0].geometry.location);
-            markerIndex = new google.maps.Marker({
-              map: map,
-              position: results[0].geometry.location
-            });
-            console.log(results[0].geometry.location.toJSON());
-          }
-        });
-      });
+    //       //load map and set maker when choose any position on map by left click mouse on map
+    //       google.maps.event.addListener(map, "click", function(event) {
+    //         markerIndex.setMap(null);
+    //         geocoder.geocode({ location: event.latLng }, function(results, status) {
+    //           if (status === "OK") {
+    //             locationObject = results[0].geometry.location;
+    //             map.setCenter(results[0].geometry.location);
+    //             markerIndex = new google.maps.Marker({
+    //               map: map,
+    //               draggable: true,
+    //               position: results[0].geometry.location
+    //             });
+    //             console.log(results[0].geometry.location.toJSON());
+    //           }
+    //         });
+    //       });
+    //     },
+    deg2rad(deg) {
+      return deg * (Math.PI / 180);
+    },
+    Harversine(lat1, lon1, lat2, lon2) {
+      var R = 6371; // Radius of the earth in km
+      var dLat = this.deg2rad(lat2 - lat1); // deg2rad below
+      var dLon = this.deg2rad(lon2 - lon1);
+      var a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(this.deg2rad(lat1)) *
+          Math.cos(this.deg2rad(lat2)) *
+          Math.sin(dLon / 2) *
+          Math.sin(dLon / 2);
+      var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      var d = R * c * 1000; // Distance in m
+     // console.log("ket qua ", d);
+
+      return d;
     },
     locateMyLocation() {
       alert("Vi tri cua toi");
@@ -583,7 +626,7 @@ export default {
         }
 
         function showPosition(position) {
-          console.log("non error");
+         // console.log("non error");
           resolve({
             lat: position.coords.latitude,
             lng: position.coords.longitude
@@ -607,45 +650,124 @@ export default {
             center: { lat: 10.7624165, lng: 106.6790126 }
           });
           var geocoder = new google.maps.Geocoder();
-
+          locationObject = value;
           geocoder.geocode({ location: value }, function(results, status) {
             if (status === "OK") {
               map.setCenter(results[0].geometry.location);
+              // markerIndex = new google.maps.Marker({
+              //   map: map,
+              //   position: results[0].geometry.location
+              // });
+              var iconBase = "https://maps.google.com/mapfiles/kml/shapes/";
               markerIndex = new google.maps.Marker({
                 map: map,
-                position: results[0].geometry.location
+                draggable: true,
+                animation: google.maps.Animation.BOUNCE,
+                position: results[0].geometry.location,
+                icon: iconBase + "motorcycling.png"
               });
-              self.x = results[0].geometry.location.toJSON().lat;
-              self.y = results[0].geometry.location.toJSON().lng;
+
+              markerIndex.addListener("dragend", function(event) {
+                geocoder.geocode({ location: event.latLng }, function(
+                  results,
+                  status
+                ) {
+                  if (status === "OK") {
+                    locationObjectNew = results[0].geometry.location.toJSON();
+                    console.log("vitri ban dau", locationObject);
+                    console.log("vitri luc sau",results[0].geometry.location.toJSON());
+                    console.log("khoang cach cua 2 vi tri");
+                    // hàm tính khoảng cách
+                    var KhoangCach = self.Harversine(
+                      locationObject.lat,
+                      locationObject.lng,
+                      results[0].geometry.location.toJSON().lat,
+                      results[0].geometry.location.toJSON().lng
+                    );
+                    if (KhoangCach > 100) {
+                      
+                      if (markerNewChange != null) {
+                        markerNewChange.setMap(null);
+                        LimitCircle.setMap(null);
+                        LimitCircle = null;
+                        // gán lại vị trí cũ
+                        markerIndex.setPosition(locationObject);
+                        // và vị trí mới = vị trí cũ
+                        locationObjectNew = locationObject;
+                      }
+                    }
+                    map.setCenter(results[0].geometry.location);
+
+                    self.x = results[0].geometry.location.toJSON().lat;
+                    self.y = results[0].geometry.location.toJSON().lng;
+                  }
+                });
+              });
+
+              markerIndex.addListener("dragstart", function(event) {
+                if (LimitCircle == null) {
+                   markerIndex.setAnimation(google.maps.Animation.BOUNCE);
+                  LimitCircle = new google.maps.Circle({
+                    strokeColor: "#FF0000",
+                    strokeOpacity: 0.8,
+                    strokeWeight: 2,
+                    fillColor: "#FF0000",
+                    fillOpacity: 0.35,
+                    map: map,
+                    center: event.latLng.toJSON(),
+                    radius: 100
+                  });
+                  markerNewChange = new google.maps.Marker({
+                    map: map,
+                    position: locationObject
+                  });
+                }
+              });
+
+              //self.x = results[0].geometry.location.toJSON().lat;
+              //self.y = results[0].geometry.location.toJSON().lng;
               self.save();
             } else {
               console.log("err bi loi");
             }
           });
 
-          google.maps.event.addListener(map, "click", function(event) {
-            //addMarker(event.latLng, map);
-            markerIndex.setMap(null);
-            //console.log(results);
+          // google.maps.event.addListener(map, "click", function(event) {
+          //   //addMarker(event.latLng, map);
+          //   markerIndex.setMap(null);
+          //   //console.log(results);
+          //   //marker.setIcon('../assets/logo.png'); // set image path here...
+          //   //addMarker(event.latLng);
+          //   var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
 
-            //addMarker(event.latLng);
-            geocoder.geocode({ location: event.latLng }, function(
-              results,
-              status
-            ) {
-              if (status === "OK") {
-                // set addressString
-                locationObject = results[0].geometry.location;
-                map.setCenter(results[0].geometry.location);
-                markerIndex = new google.maps.Marker({
-                  map: map,
-                  position: results[0].geometry.location
-                });
-                self.x = results[0].geometry.location.toJSON().lat;
-                self.y = results[0].geometry.location.toJSON().lng;
-              }
-            });
-          });
+          //   geocoder.geocode({ location: event.latLng }, function(
+          //     results,
+          //     status
+          //   ) {
+          //     if (status === "OK") {
+
+          //       // set addressString
+          //      // locationObject = results[0].geometry.location;
+          //      console.log('vitri ban dau',locationObject);
+          //      console.log('vitri luc sau',results[0].geometry.location.toJSON().lat);
+          //      console.log('khoa cach cua 2 vi tri  ')
+
+          //     self.Harversine(locationObject.lat,locationObject.lng,results[0].geometry.location.toJSON().lat,results[0].geometry.location.toJSON().lng);
+
+          //       map.setCenter(results[0].geometry.location);
+          //       markerIndex = new google.maps.Marker({
+          //         map: map,
+          //         position: results[0].geometry.location,
+          //         // animation: google.maps.Animation.DROP,
+          //         animation: google.maps.Animation.BOUNCE,
+          //          icon:  iconBase + 'motorcycling.png'
+
+          //       });
+          //       self.x = results[0].geometry.location.toJSON().lat;
+          //       self.y = results[0].geometry.location.toJSON().lng;
+          //     }
+          //   });
+          // });
         })
         .catch(function() {
           console.log(" buoc 3 ");
