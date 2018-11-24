@@ -98,9 +98,9 @@ export default {
   name: "Home",
   props: ["name"],
   data() {
-    var x = 0,
-      y = 0;
+    var x = 0, y = 0;
     var request;
+    var isRecivedRequest = false;
 
     return {
       mapName: this.name + "-map",
@@ -426,6 +426,11 @@ export default {
         userId: localStorage.getItem("userId")
       };
 
+      if(ws.readyState === WebSocket.OPEN) {
+        console.log("disconnect to server websocket");
+        ws.close();
+      }
+
       let formBody = [];
       for (let property in user) {
         let encodedKey = encodeURIComponent(property);
@@ -688,14 +693,12 @@ export default {
       ws.send("Hello server backend");
     };
 
-    ws.close = function() {
-      console.log("disconnected");
-    };
-
+    //listen request from server
     ws.onmessage = function(payload) {
       console.log("request from server");
 
-      if (payload.data != "") {
+      if (payload.data != "" && !self.isRecivedRequest) {
+        self.isRecivedRequest = true;
         let jsonRequest = JSON.parse(payload.data);
         self.request = jsonRequest;
         console.log(jsonRequest);
@@ -709,9 +712,14 @@ export default {
           show: true
         });
         setTimeout(() => {
+          self.isRecivedRequest = false;
           $("#exampleModal").modal("hide");
         }, 10000);
       }
+    };
+
+    ws.onclose  = function() {
+      console.log("disconnected");
     };
 
     //identify driver's location
@@ -719,9 +727,9 @@ export default {
     self.chooseStatus(1);
   },
   destroyed() {
-    ws.close = function() {
-      console.log("disconnected");
-    };
+    if(ws.readyState === WebSocket.OPEN) {
+      ws.close();
+    }
   }
 };
 </script>

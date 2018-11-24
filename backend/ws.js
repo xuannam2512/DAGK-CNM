@@ -46,7 +46,8 @@ var broadcastAll = async function (request) {
     console.log("start send request");
     for(i = 0; i < s.length; i++){
         for(let c of socketServer.clients) {
-            if (c.protocol === s[i].userId) {
+            console.log(c.readyState);
+            if (c.protocol === s[i].userId && c.readyState === WebSocket.OPEN) {
                 console.log("Equal", s[i]);
                 await c.send(JSON.stringify(request));
                 break;
