@@ -140,6 +140,7 @@ export default {
       directionsDisplay.setMap(map);
       console.log(self.x);
       console.log(self.y);
+      console.log(self.request);
 
       //caculate and display route
       directionsService.route(
@@ -239,7 +240,7 @@ export default {
             addressString: self.request.addressString,
             x: self.request.x,
             y: self.request.y,
-            status: "Dang xong",
+            status: "Da xong",
             noteString: self.request.noteString,
             isFindDriver: false
           },
@@ -249,8 +250,9 @@ export default {
           }
         })
           .then(res => {
-            if (res.status === 200) {
+            if (res.status === 201) {
               console.log("jump here");
+              self.chooseStatus(1);
             }
           })
           .catch(err => {
@@ -298,6 +300,7 @@ export default {
               };
               self.classObject = classObjectSuccess;
               self.status = "Active";
+              self.isRecivedRequest = false;
               alert("update status thanh cong!");
             })
             .catch(err => {
@@ -343,6 +346,7 @@ export default {
               };
               self.classObject = classObjectWarning;
               self.status = "Stand by";
+              self.isRecivedRequest = true;
               alert("Update status thanh cong");
             })
             .catch(err => {
@@ -388,6 +392,7 @@ export default {
               };
               self.classObject = classObjectDanger;
               self.status = "Busy";
+              self.isRecivedRequest = true;
               alert("update status thanh cong!");
             })
             .catch(err => {
@@ -503,10 +508,11 @@ export default {
         markerIndex.setAnimation(google.maps.Animation.DROP);
         // gán vị trí mới
         locationObject = locationObjectNew;
-        //
-        self.x = locationObject.lat;
-        self.y = locationObject.lng;
+
       }
+
+      self.x = locationObject.lat;
+      self.y = locationObject.lng;
 
       axios({
         method: "put",

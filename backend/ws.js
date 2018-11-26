@@ -7,6 +7,7 @@ var math = require('mathjs');
 var SOCKET_PORT = process.env.SOCKET_PORT || 40510;
 var socketServer;
 var response = 'NO';
+const MAX = 5;
 
 if (!socketServer) {
     socketServer = new WebSocket.Server({
@@ -30,7 +31,8 @@ if (!socketServer) {
 }
 
 var broadcastAll = async function (request) {
-    let i;
+    let i;    
+    let n;
 
     console.log(request);
     request.status = "Dang tim xe";
@@ -43,8 +45,15 @@ var broadcastAll = async function (request) {
     //sort
     await sortDistance(s);
 
+    //check amount driver
+    if (MAX > s.length) {
+        n = s.length
+    } else {
+        n = MAX;
+    }
+
     console.log("start send request");
-    for(i = 0; i < s.length; i++){
+    for(i = 0; i < n; i++){
         for(let c of socketServer.clients) {
             console.log(c.readyState);
             if (c.protocol === s[i].userId && c.readyState === WebSocket.OPEN) {
