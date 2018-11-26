@@ -100,9 +100,9 @@ export default {
   name: "Home",
   props: ["name"],
   data() {
-    var x = 0,
-      y = 0;
+    var x = 0, y = 0;
     var request;
+    var isRecivedRequest = false;
 
     return {
       mapName: this.name + "-map",
@@ -140,6 +140,7 @@ export default {
       directionsDisplay.setMap(map);
       console.log(self.x);
       console.log(self.y);
+      console.log(self.request);
 
       //caculate and display route
       directionsService.route(
@@ -239,7 +240,7 @@ export default {
             addressString: self.request.addressString,
             x: self.request.x,
             y: self.request.y,
-            status: "Dang xong",
+            status: "Da xong",
             noteString: self.request.noteString,
             isFindDriver: false
           },
@@ -249,8 +250,9 @@ export default {
           }
         })
           .then(res => {
-            if (res.status === 200) {
+            if (res.status === 201) {
               console.log("jump here");
+              self.chooseStatus(1);
             }
           })
           .catch(err => {
@@ -298,6 +300,7 @@ export default {
               };
               self.classObject = classObjectSuccess;
               self.status = "Active";
+              self.isRecivedRequest = false;
               alert("update status thanh cong!");
             })
             .catch(err => {
@@ -343,6 +346,7 @@ export default {
               };
               self.classObject = classObjectWarning;
               self.status = "Stand by";
+              self.isRecivedRequest = true;
               alert("Update status thanh cong");
             })
             .catch(err => {
@@ -388,6 +392,7 @@ export default {
               };
               self.classObject = classObjectDanger;
               self.status = "Busy";
+              self.isRecivedRequest = true;
               alert("update status thanh cong!");
             })
             .catch(err => {
@@ -427,6 +432,11 @@ export default {
       let user = {
         userId: localStorage.getItem("userId")
       };
+
+      if(ws.readyState === WebSocket.OPEN) {
+        console.log("disconnect to server websocket");
+        ws.close();
+      }
 
       let formBody = [];
       for (let property in user) {
@@ -498,10 +508,11 @@ export default {
         markerIndex.setAnimation(google.maps.Animation.DROP);
         // gán vị trí mới
         locationObject = locationObjectNew;
-        //
-        self.x = locationObject.lat;
-        self.y = locationObject.lng;
+
       }
+
+      self.x = locationObject.lat;
+      self.y = locationObject.lng;
 
       axios({
         method: "put",
@@ -810,14 +821,12 @@ export default {
       ws.send("Hello server backend");
     };
 
-    ws.close = function() {
-      console.log("disconnected");
-    };
-
+    //listen request from server
     ws.onmessage = function(payload) {
       console.log("request from server");
 
-      if (payload.data != "") {
+      if (payload.data != "" && !self.isRecivedRequest) {
+        self.isRecivedRequest = true;
         let jsonRequest = JSON.parse(payload.data);
         self.request = jsonRequest;
         console.log(jsonRequest);
@@ -831,9 +840,14 @@ export default {
           show: true
         });
         setTimeout(() => {
+          self.isRecivedRequest = false;
           $("#exampleModal").modal("hide");
         }, 10000);
       }
+    };
+
+    ws.onclose  = function() {
+      console.log("disconnected");
     };
 
     //identify driver's location
@@ -841,9 +855,9 @@ export default {
     self.chooseStatus(1);
   },
   destroyed() {
-    ws.close = function() {
-      console.log("disconnected");
-    };
+    if(ws.readyState === WebSocket.OPEN) {
+      ws.close();
+    }
   }
 };
 </script>
