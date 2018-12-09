@@ -7,7 +7,7 @@
 *  Install database
    * Open file dagkcnm.slq end run all.
    
-* Install npm:
+* Instruction run system
    * run back-end: 
       * cd back-end
       * npm install 
@@ -34,6 +34,3 @@
          * cd front-end/app4
          * npm install
          * npm run dev
-
-* Start server backend:
-   * Open terminal then run: npm start
