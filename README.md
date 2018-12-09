@@ -1,9 +1,5 @@
 # DAGK-CNM
 * Back-end
-    * Have 3 folder:
-        * folder fn contains the files which interact with database
-        * folder repos contains the files which process the logic of business
-        * folder apiControllers contains the files which control api by using get/post/put...
 * Front-end
 
 #INSTRUCTION
@@ -12,7 +8,32 @@
    * Open file dagkcnm.slq end run all.
    
 * Install npm:
-   * Open terminal then run: npm install
+   * run back-end: 
+      * cd back-end
+      * npm install 
+      * npm start
+   * Run front-end:
+      * App1:
+         * cd front-end/app1
+         * npm install
+         * npm run dev
+      
+      * App2:
+         * cd front-end/app2
+         * npm install
+         * npm run dev
+         
+      
+      * App3:
+         * cd front-end/app3
+         * npm install
+         * npm run dev
+         
+       
+      * App4:
+         * cd front-end/app4
+         * npm install
+         * npm run dev
 
 * Start server backend:
    * Open terminal then run: npm start
